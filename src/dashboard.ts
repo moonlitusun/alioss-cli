@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import path from 'path';
 import fs from 'fs';
+import clipboard from 'clipboardy';
 import { listBuckets, listFiles, initClient } from './oss-client';
 import { uploadLocalFile, uploadFromClipboard } from './uploader';
 import { loadConfig, saveConfig } from './config';
@@ -293,7 +294,9 @@ async function handleUpload(): Promise<void> {
     try {
       const result = await uploadLocalFile(absPath, remotePath);
       spinner.succeed(chalk.green(`Upload successful!`));
-      console.log(chalk.gray(`URL: ${result.url}\n`));
+      console.log(chalk.cyan('\n📎 URL (copied to clipboard):'));
+      console.log(chalk.white.bold(`   ${result.url}\n`));
+      try { clipboard.writeSync(result.url); } catch {}
     } catch (error) {
       spinner.fail(chalk.red(`Upload failed: ${(error as Error).message}`));
     }
@@ -321,7 +324,9 @@ async function handleClipboardUpload(): Promise<void> {
     try {
       const result = await uploadFromClipboard(remotePath);
       spinner.succeed(chalk.green(`Upload successful!`));
-      console.log(chalk.gray(`URL: ${result.url}\n`));
+      console.log(chalk.cyan('\n📎 URL (copied to clipboard):'));
+      console.log(chalk.white.bold(`   ${result.url}\n`));
+      try { clipboard.writeSync(result.url); } catch {}
     } catch (error) {
       spinner.fail(chalk.red(`Upload failed: ${(error as Error).message}`));
     }
