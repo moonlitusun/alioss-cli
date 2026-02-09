@@ -1,0 +1,49 @@
+{
+  "name": "alioss-upload",
+  "version": "1.0.0",
+  "description": "CLI tool for uploading files to Alibaba Cloud OSS",
+  "main": "src/index.ts",
+  "type": "module",
+  "bin": {
+    "alioss": "./bin/alioss"
+  },
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "keywords": [
+    "aliyun",
+    "alibaba",
+    "oss",
+    "upload",
+    "cli",
+    "object-storage"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "dependencies": {
+    "ali-oss": "^6.21.0",
+    "chalk": "^5.3.0",
+    "clipboardy": "^4.0.0",
+    "dotenv": "^16.4.5",
+    "inquirer": "^9.2.15",
+    "ora": "^8.0.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.0"
+  }
+}
