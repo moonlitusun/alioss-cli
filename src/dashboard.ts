@@ -23,17 +23,19 @@ interface Selection {
 }
 
 let currentBucket: string | null = null;
+let currentBucketRegion: string | undefined;
 let currentPath: string = '';
-let navigationStack: Array<{ bucket: string | null; path: string }> = [];
+let navigationStack: Array<{ bucket: string | null; bucketRegion?: string; path: string }> = [];
 
 function pushState() {
-  navigationStack.push({ bucket: currentBucket, path: currentPath });
+  navigationStack.push({ bucket: currentBucket, bucketRegion: currentBucketRegion, path: currentPath });
 }
 
 function popState(): boolean {
   const prev = navigationStack.pop();
   if (prev) {
     currentBucket = prev.bucket;
+    currentBucketRegion = prev.bucketRegion;
     currentPath = prev.path;
     return true;
   }
@@ -56,8 +58,12 @@ export async function startDashboard(): Promise<void> {
 
       if (useLastLocation) {
         currentBucket = config.lastBucket;
+        currentBucketRegion = config.lastBucketRegion || await findBucketRegion(config.lastBucket);
         currentPath = config.lastPath;
-        initClient(currentBucket);
+        initClient(currentBucket, currentBucketRegion);
+        if (currentBucketRegion) {
+          saveConfig({ lastBucketRegion: currentBucketRegion });
+        }
         console.log(chalk.green(`✓ Restored: ${currentBucket}:${currentPath || '/'}\n`));
         await browseDirectory();
         return;
@@ -86,13 +92,13 @@ async function selectBucket(): Promise<void> {
     const config = loadConfig();
     const choices = buckets.map(b => ({
       name: `${b.name} (${b.region})${b.name === config.lastBucket ? chalk.green(' [last]') : ''}`,
-      value: b.name,
+      value: { name: b.name, region: b.region },
     }));
 
     const defaultIndex = buckets.findIndex(b => b.name === config.lastBucket);
 
     try {
-      const { bucket } = await inquirer.prompt<{ bucket: string }>([
+      const { bucket } = await inquirer.prompt<{ bucket: { name: string; region?: string } }>([
         {
           type: 'list',
           name: 'bucket',
@@ -103,11 +109,12 @@ async function selectBucket(): Promise<void> {
       ]);
 
       pushState();
-      currentBucket = bucket;
+      currentBucket = bucket.name;
+      currentBucketRegion = bucket.region;
       currentPath = '';
-      initClient(bucket);
-      saveConfig({ lastBucket: bucket, lastPath: '' });
-      console.log(chalk.green(`✓ Selected Bucket: ${bucket}\n`));
+      initClient(currentBucket, currentBucketRegion);
+      saveConfig({ lastBucket: currentBucket, lastPath: '', lastBucketRegion: currentBucketRegion });
+      console.log(chalk.green(`✓ Selected Bucket: ${currentBucket}\n`));
 
       await browseDirectory();
     } catch {
@@ -127,7 +134,7 @@ async function browseDirectory(): Promise<void> {
     const { directories, files } = await listFiles(currentPath);
     spinner.stop();
 
-    saveConfig({ lastBucket: currentBucket, lastPath: currentPath });
+    saveConfig({ lastBucket: currentBucket, lastPath: currentPath, lastBucketRegion: currentBucketRegion });
 
     const choices: Array<{ name: string; value: Selection } | inquirer.Separator> = [];
 
@@ -228,6 +235,7 @@ async function handleSelection(selection: Selection): Promise<void> {
 
     case 'switch_bucket':
       currentPath = '';
+      currentBucketRegion = undefined;
       await selectBucket();
       break;
 
@@ -254,6 +262,11 @@ async function handleSelection(selection: Selection): Promise<void> {
     default:
       await browseDirectory();
   }
+}
+
+async function findBucketRegion(bucketName: string): Promise<string | undefined> {
+  const buckets = await listBuckets();
+  return buckets.find(bucket => bucket.name === bucketName)?.region;
 }
 
 async function handleUpload(): Promise<void> {

@@ -5,13 +5,13 @@ A simple CLI tool for uploading files to Alibaba Cloud OSS with an interactive d
 ## Installation
 
 ```bash
-npm install -g alioss-upload
+npm install -g alioss-upload2
 ```
 
 Or with bun:
 
 ```bash
-bun install -g alioss-upload
+bun install -g alioss-upload2
 ```
 
 ## Quick Start
@@ -19,6 +19,9 @@ bun install -g alioss-upload
 ```bash
 # First run - will prompt for credentials
 alioss
+
+# Equivalent command name
+alioss-upload2
 
 # Or set credentials manually
 alioss set
@@ -28,7 +31,7 @@ alioss set
 
 | Command | Description |
 |---------|-------------|
-| `alioss` | Start interactive upload dashboard |
+| `alioss` / `alioss-upload2` | Start interactive upload dashboard |
 | `alioss set` | Configure OSS credentials |
 | `alioss get` | Show current configuration |
 | `alioss config` | Show config file path |
@@ -45,7 +48,7 @@ alioss set
 This will prompt you for:
 - Access Key ID
 - Access Key Secret
-- Region (default: oss-cn-hangzhou)
+- Region (default: oss-cn-shenzhen)
 
 Credentials are stored in `~/.alioss-config.json`.
 
@@ -54,7 +57,7 @@ Credentials are stored in `~/.alioss-config.json`.
 ```bash
 export OSS_ACCESS_KEY_ID=your_access_key_id
 export OSS_ACCESS_KEY_SECRET=your_access_key_secret
-export OSS_REGION=oss-cn-hangzhou  # optional
+export OSS_REGION=oss-cn-shenzhen  # optional
 ```
 
 Environment variables take precedence over stored config.

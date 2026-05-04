@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-import { getCredentials, saveConfig, loadConfig, getConfigPath } from './config';
+import { DEFAULT_REGION, getCredentials, saveConfig, loadConfig, getConfigPath } from './config';
 
 const args = process.argv.slice(2);
 
@@ -77,7 +77,7 @@ async function handleSet() {
       type: 'input',
       name: 'region',
       message: 'Region:',
-      default: config.region || 'oss-cn-hangzhou',
+      default: config.region || DEFAULT_REGION,
     },
   ]);
 
@@ -95,7 +95,7 @@ function handleGet() {
   console.log(chalk.cyan('\nStored Configuration:\n'));
   console.log(`  Access Key ID: ${config.accessKeyId ? chalk.green(maskString(config.accessKeyId)) : chalk.gray('(not set)')}`);
   console.log(`  Access Key Secret: ${config.accessKeySecret ? chalk.green('********') : chalk.gray('(not set)')}`);
-  console.log(`  Region: ${config.region ? chalk.green(config.region) : chalk.gray('(default: oss-cn-hangzhou)')}`);
+  console.log(`  Region: ${config.region ? chalk.green(config.region) : chalk.gray(`(default: ${DEFAULT_REGION})`)}`);
   console.log(`  Last Bucket: ${config.lastBucket ? chalk.green(config.lastBucket) : chalk.gray('(none)')}`);
   console.log(`  Last Path: ${config.lastPath ? chalk.green(config.lastPath) : chalk.gray('/')}`);
   console.log('');
@@ -118,7 +118,7 @@ function showHelp() {
   console.log('\nEnvironment Variables:');
   console.log('  OSS_ACCESS_KEY_ID      Access Key ID');
   console.log('  OSS_ACCESS_KEY_SECRET  Access Key Secret');
-  console.log('  OSS_REGION             Region (default: oss-cn-hangzhou)');
+  console.log(`  OSS_REGION             Region (default: ${DEFAULT_REGION})`);
   console.log('');
 }
 

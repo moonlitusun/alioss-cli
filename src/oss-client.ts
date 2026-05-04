@@ -22,14 +22,13 @@ interface ListResult {
 
 let client: OSS | null = null;
 
-export function initClient(bucket: string | null = null): OSS {
-  const creds = getCredentials();
-  if (!creds) {
-    throw new Error('No credentials configured');
-  }
-
-  const config: any = {
-    region: creds.region,
+export function buildClientConfig(
+  creds: { accessKeyId: string; accessKeySecret: string; region: string },
+  bucket: string | null = null,
+  bucketRegion?: string
+): Record<string, string> {
+  const config: Record<string, string> = {
+    region: bucketRegion || creds.region,
     accessKeyId: creds.accessKeyId,
     accessKeySecret: creds.accessKeySecret,
   };
@@ -38,19 +37,29 @@ export function initClient(bucket: string | null = null): OSS {
     config.bucket = bucket;
   }
 
+  return config;
+}
+
+export function initClient(bucket: string | null = null, bucketRegion?: string): OSS {
+  const creds = getCredentials();
+  if (!creds) {
+    throw new Error('No credentials configured');
+  }
+
+  const config = buildClientConfig(creds, bucket, bucketRegion);
   client = new OSS(config);
   return client;
 }
 
 export async function listBuckets(): Promise<OSS.Bucket[]> {
-  if (!client) initClient();
+  initClient();
   const result = await client!.listBuckets({});
   return result.buckets || [];
 }
 
-export async function listFiles(prefix: string = '', bucket: string | null = null): Promise<ListResult> {
+export async function listFiles(prefix: string = '', bucket: string | null = null, bucketRegion?: string): Promise<ListResult> {
   if (bucket) {
-    initClient(bucket);
+    initClient(bucket, bucketRegion);
   }
 
   const result = await client!.list({

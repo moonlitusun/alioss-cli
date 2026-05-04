@@ -5,12 +5,14 @@ import os from 'os';
 interface Config {
   lastBucket: string | null;
   lastPath: string;
+  lastBucketRegion?: string;
   accessKeyId?: string;
   accessKeySecret?: string;
   region?: string;
 }
 
 const CONFIG_FILE = path.join(os.homedir(), '.alioss-config.json');
+export const DEFAULT_REGION = 'oss-cn-shenzhen';
 
 export function loadConfig(): Config {
   try {
@@ -35,7 +37,7 @@ export function getCredentials(): { accessKeyId: string; accessKeySecret: string
   
   const accessKeyId = process.env.OSS_ACCESS_KEY_ID || config.accessKeyId;
   const accessKeySecret = process.env.OSS_ACCESS_KEY_SECRET || config.accessKeySecret;
-  const region = process.env.OSS_REGION || config.region || 'oss-cn-hangzhou';
+  const region = process.env.OSS_REGION || config.region || DEFAULT_REGION;
 
   if (accessKeyId && accessKeySecret) {
     return { accessKeyId, accessKeySecret, region };
